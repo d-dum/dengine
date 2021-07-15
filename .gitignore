@@ -1,0 +1,16 @@
+.dub
+docs.json
+__dummy.html
+docs/
+/dengine
+dengine.so
+dengine.dylib
+dengine.dll
+dengine.a
+dengine.lib
+dengine-test-*
+*.exe
+*.o
+*.obj
+*.lst
+dub.settings.json

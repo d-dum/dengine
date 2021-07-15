@@ -1,0 +1,17 @@
+{
+	"authors": [
+		"vbl"
+	],
+	"copyright": "Copyright © 2021, Lev Denisov",
+	"dependencies": {
+		"bindbc-opengl": "~>1.0.0",
+		"glfw-d": "~>1.1.0",
+		"stb": "~>2.0.1"
+	},
+	"description": "my opengl game engine in d",
+	"license": "MIT",
+	"name": "dengine",
+	"versions": [
+		"GL_33"
+	]
+}
