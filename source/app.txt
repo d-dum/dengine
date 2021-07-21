@@ -1,0 +1,186 @@
+module app;
+
+import glfw3.api;
+import bindbc.opengl;
+import imaged;
+import std.stdio;
+
+int main() {
+	GLFWwindow* window;
+
+	if (!glfwInit()) {
+		return -1;
+	}
+	scope(exit) glfwTerminate();
+
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+
+	window = glfwCreateWindow(800, 600, "OpenGL Triangle", null, null);
+	scope(exit) glfwDestroyWindow(window);
+	if (!window) {
+		return -1;
+	}
+
+	glfwMakeContextCurrent(window);
+	glfwSwapInterval(1); // Set vsync on so glfwSwapBuffers will wait for monitor updates.
+	// note: 1 is not a boolean! Set e.g. to 2 to run at half the monitor refresh rate.
+
+	GLSupport retVal = loadOpenGL();
+	if (retVal == GLSupport.badLibrary || retVal == GLSupport.noLibrary) {
+		return -1;
+	}
+	uint texture = getTexture("res/crate.png");
+
+	const GLuint program = getProgram();
+	const GLuint vaoTriangle = getTriangleVao();
+
+	while (!glfwWindowShouldClose(window)) {
+		glClear(GL_COLOR_BUFFER_BIT);
+		glClearColor(0.5, 0.5, 0.5, 1.0);
+
+		int width, height;
+		glfwGetFramebufferSize(window, &width, &height);
+		glViewport(0, 0, width, height);
+
+		glUseProgram(program);
+		glBindVertexArray(vaoTriangle);
+		glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, texture);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, null);
+
+		glfwSwapBuffers(window);
+		glfwPollEvents();
+	}
+	return 0;
+}
+
+// SHADER PROGRAM /////////////////////////
+
+immutable string vertexShaderSource = "#version 330
+layout(location = 0) in vec3 position;
+layout(location = 1) in vec2 texCoords; 
+out vec2 textureCoords;
+void main() {
+	gl_Position = vec4(position, 1.0);
+	textureCoords = texCoords;
+}";
+
+immutable string fragmentShaderSource = "#version 330
+in vec2 textureCoords;
+out vec4 outColor;
+uniform sampler2D textureSampler;
+void main() {
+	outColor = texture(textureSampler, textureCoords);
+}";
+
+GLuint getProgram() {
+	const GLint vertexShader = glCreateShader(GL_VERTEX_SHADER);
+	{
+		const GLint[1] lengths = [vertexShaderSource.length];
+		const(char)*[1] sources = [vertexShaderSource.ptr];
+		glShaderSource(vertexShader, 1, sources.ptr, lengths.ptr);
+		glCompileShader(vertexShader);
+	}
+	const GLint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+	{
+		const GLint[1] lengths = [fragmentShaderSource.length];
+		const(char)*[1] sources = [fragmentShaderSource.ptr];
+		glShaderSource(fragmentShader, 1, sources.ptr, lengths.ptr);
+		glCompileShader(fragmentShader);
+	}
+
+	const GLuint program = glCreateProgram();
+	glAttachShader(program, vertexShader);
+	glAttachShader(program, fragmentShader);
+	glLinkProgram(program);
+	return program;
+}
+
+// MODEL /////////////////////////
+
+struct Vertex {
+	float[3] position;
+	float[2] color;
+}
+
+immutable Vertex[4] vertices = [
+	Vertex([ -0.5, 0.5, 0], [0.0, 0.0,]),
+	Vertex([  -0.5, -0.5, 0,], [  0.0, 1.0,]),
+	Vertex([  0.5, -0.5, 0,], [1.0, 1.0,]),
+	Vertex([  0.5, 0.5, 0], [1.0, 0.0]),
+];
+
+immutable ushort[] indices = [
+	0, 1, 3, // first triangle
+    3, 1, 2, // second triangle
+];
+
+uint getTexture(string texture_path){
+        uint texture;
+        glGenTextures(1, &texture);
+        
+
+        IMGError err;
+        Image img = load(texture_path, err);
+
+        GLenum texformat;
+        GLint nchannels;
+
+        if (img.pixelFormat == Px.R8G8B8)
+        {
+            nchannels = 3;
+            texformat = GL_RGB;
+            debug { writeln("Texture format is: GL_RGB"); }
+        }
+        else if (img.pixelFormat == Px.R8G8B8A8)
+        {
+            nchannels = 4;
+            texformat = GL_RGBA;
+            debug { writeln("Texture format is: GL_RGBA"); }
+        }
+
+        glBindTexture(GL_TEXTURE_2D, texture);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, cast(int)img.width, cast(int)img.height, 0, 
+            GL_RGB, GL_UNSIGNED_BYTE, img.pixels.ptr);
+
+        return texture;
+    }
+
+GLuint getTriangleVao() {
+	// Upload data to GPU
+	GLuint vbo;
+	glGenBuffers(1, &vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	glBufferData(GL_ARRAY_BUFFER, vertices.sizeof, vertices.ptr, /*usage hint*/ GL_STATIC_DRAW);
+
+	
+	// Describe layout of data for the shader program
+	GLuint vao;
+	glGenVertexArrays(1, &vao);
+	glBindVertexArray(vao);
+
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(
+		/*location*/ 0, /*num elements*/ 3, /*base type*/ GL_FLOAT, /*normalized*/ GL_FALSE,
+		Vertex.sizeof, cast(void*) Vertex.position.offsetof
+	);
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(
+		/*location*/ 1, /*num elements*/ 2, /*base type*/ GL_FLOAT, /*normalized*/ GL_FALSE,
+		Vertex.sizeof, cast(void*) Vertex.color.offsetof
+	);
+
+	GLuint ebo;
+	glGenBuffers(1, &ebo);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.sizeof, indices.ptr, GL_STATIC_DRAW);
+
+
+	return vao;
+}

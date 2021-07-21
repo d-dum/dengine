@@ -6,18 +6,20 @@ import bindbc.opengl;
 
 
 private immutable string vertexShaderSource = "#version 330
-layout(location = 0) in vec2 position;
-out vec3 fragColor;
+layout(location = 0) in vec3 position;
+layout(location = 1) in vec2 texCoords; 
+out vec2 textureCoords;
 void main() {
-	gl_Position = vec4(position, 0.0, 1.0);
-	fragColor = vec3(1.0, 0.0, 0.0);
+	gl_Position = vec4(position, 1.0);
+	textureCoords = texCoords;
 }";
 
 private immutable string fragmentShaderSource = "#version 330
-in vec3 fragColor;
+in vec2 textureCoords;
 out vec4 outColor;
+uniform sampler2D textureSampler;
 void main() {
-	outColor = vec4(fragColor, 1.0);
+	outColor = texture(textureSampler, textureCoords);
 }";
 
 /// Base class for all shaders

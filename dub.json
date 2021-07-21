@@ -6,12 +6,15 @@
 	"dependencies": {
 		"bindbc-opengl": "~>1.0.0",
 		"glfw-d": "~>1.1.0",
-		"stb": "~>2.0.1"
+		"imaged": "~>1.0.2",
+		"imageformats": "~>7.0.2"
 	},
 	"description": "my opengl game engine in d",
 	"license": "MIT",
 	"name": "dengine",
 	"versions": [
-		"GL_33"
+		"GL_33",
+		"SDL_Image",
+		"SDL_TTF"
 	]
 }

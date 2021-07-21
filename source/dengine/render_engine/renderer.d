@@ -17,9 +17,15 @@ public:
     /// Render GameObject
     void renderGameObject(GameObject gameObject){
         glBindVertexArray(gameObject.getVaoID());
+        if(gameObject.getHaveTexture()){
+            glEnableVertexAttribArray(1);
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, gameObject.getTextureID());
+        }
         glEnableVertexAttribArray(0);
         glDrawElements(GL_TRIANGLES, gameObject.getVertexCount(), GL_UNSIGNED_INT, null);
         glDisableVertexAttribArray(0);
+        if(gameObject.getHaveTexture()) glDisableVertexAttribArray(1);
         glBindVertexArray(0);
     }
 }
