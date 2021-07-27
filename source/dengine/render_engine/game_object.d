@@ -113,7 +113,7 @@ private:
         return texture;
     }
 
-    uint getTexture(ref string texture_path){
+    uint getTexture(string texture_path){
         uint texture;
         glGenTextures(1, &texture);
         
@@ -128,13 +128,11 @@ private:
         {
             nchannels = 3;
             texformat = GL_RGB;
-            debug { writeln("Texture format is: GL_RGB"); }
         }
         else if (img.pixelFormat == Px.R8G8B8A8)
         {
             nchannels = 4;
             texformat = GL_RGBA;
-            debug { writeln("Texture format is: GL_RGBA"); }
         }
 
         glBindTexture(GL_TEXTURE_2D, texture);
@@ -150,7 +148,7 @@ private:
     }
 
 public:
-    /// Constructor for game object
+    // /// Constructor for game object
     // this(Vertex* vertices, uint* indices, ulong vertices_size, ulong indices_len){
     //     vaoID = getVaoID(vertices, indices, vertices_size, indices_len);
     // }
@@ -163,13 +161,12 @@ public:
     //     have_texture = true;
     //     textureID = getTexture(vaoID, texture_path, texture_coords, texture_size, rgba);
     // }
-
-    /// I think this one will work
-    this(V)(ref V[] vertices, ref ushort[] indices){
+    this(Vertex[] v, ushort[] i) {
+	    // Upload data to GPU
         GLuint vbo;
         glGenBuffers(1, &vbo);
         glBindBuffer(GL_ARRAY_BUFFER, vbo);
-        glBufferData(GL_ARRAY_BUFFER, vertices.sizeof, vertices.ptr, /*usage hint*/ GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, Vertex.sizeof * v.length, v.ptr, /*usage hint*/ GL_STATIC_DRAW);
 
         
         // Describe layout of data for the shader program
@@ -191,22 +188,67 @@ public:
         GLuint ebo;
         glGenBuffers(1, &ebo);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.sizeof, indices.ptr, GL_STATIC_DRAW);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, ushort.sizeof * i.length, i.ptr, GL_STATIC_DRAW);
 
-        glDisableVertexAttribArray(1);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
         glDisableVertexAttribArray(0);
-        glBindVertexArray(0);
-        glBindBuffer(GL_ARRAY_BUFFER, vbo);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-
-        vboID = vbo;
-        eboID = ebo;
+        glDisableVertexAttribArray(1);
 
         vaoID = vao;
+        vboID = vbo;
+        eboID = ebo;
+        vertexCount = cast(int)i.length;
     }
 
-    this(V)(ref V[] vertices, ref ushort[] indices, ref string texture_path){
-        this(vertices, indices);
+    this(Vertex* v_ptr, ushort* i_ptr, ulong v_len, ulong i_len) {
+	    // Upload data to GPU
+        GLuint vbo;
+        glGenBuffers(1, &vbo);
+        glBindBuffer(GL_ARRAY_BUFFER, vbo);
+        glBufferData(GL_ARRAY_BUFFER, Vertex.sizeof * v_len, v_ptr, /*usage hint*/ GL_STATIC_DRAW);
+
+        
+        // Describe layout of data for the shader program
+        GLuint vao;
+        glGenVertexArrays(1, &vao);
+        glBindVertexArray(vao);
+
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(
+            /*location*/ 0, /*num elements*/ 3, /*base type*/ GL_FLOAT, /*normalized*/ GL_FALSE,
+            Vertex.sizeof, cast(void*) Vertex.position.offsetof
+        );
+        glEnableVertexAttribArray(1);
+        glVertexAttribPointer(
+            /*location*/ 1, /*num elements*/ 2, /*base type*/ GL_FLOAT, /*normalized*/ GL_FALSE,
+            Vertex.sizeof, cast(void*) Vertex.uv.offsetof
+        );
+
+        GLuint ebo;
+        glGenBuffers(1, &ebo);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, ushort.sizeof * i_len, i_ptr, GL_STATIC_DRAW);
+
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glDisableVertexAttribArray(0);
+        glDisableVertexAttribArray(1);
+
+        vaoID = vao;
+        vboID = vbo;
+        eboID = ebo;
+        vertexCount = cast(int)i_len;
+    }
+
+    this(Vertex* v_ptr, ushort* i_ptr, ulong v_len, ulong i_len, string texture_path){
+        this(v_ptr, i_ptr, v_len, i_len);
+        textureID = getTexture(texture_path);
+        have_texture = true;
+    }
+
+    this(Vertex[] v, ushort[] i, string texture_path){
+        this(v.ptr, i.ptr, v.length, i.length);
         textureID = getTexture(texture_path);
         have_texture = true;
     }

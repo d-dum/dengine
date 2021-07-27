@@ -4,8 +4,14 @@ module dengine.shaders.shader_program;
 import glfw3.api;
 import bindbc.opengl;
 
+/// Base class for all shaders
+class ShaderProgram{
+private:
+    uint programID;
+    uint vertexShaderID;
+    uint fragmentShaderID;
 
-private immutable string vertexShaderSource = "#version 330
+    immutable string vertexShaderSource = "#version 330
 layout(location = 0) in vec3 position;
 layout(location = 1) in vec2 texCoords; 
 out vec2 textureCoords;
@@ -14,7 +20,7 @@ void main() {
 	textureCoords = texCoords;
 }";
 
-private immutable string fragmentShaderSource = "#version 330
+immutable string fragmentShaderSource = "#version 330
 in vec2 textureCoords;
 out vec4 outColor;
 uniform sampler2D textureSampler;
@@ -22,17 +28,10 @@ void main() {
 	outColor = texture(textureSampler, textureCoords);
 }";
 
-/// Base class for all shaders
-class ShaderProgram{
-private:
-    uint programID;
-    uint vertexShaderID;
-    uint fragmentShaderID;
-
     uint createShader(uint type, string shaderPath){
         uint shader = glCreateShader(GL_VERTEX_SHADER);
         {
-            const GLint[1] lengths = [vertexShaderSource.length];
+            const GLint[1] lengths = [cast(int)vertexShaderSource.length];
             const(char)*[1] sources = [vertexShaderSource.ptr];
             glShaderSource(shader, 1, sources.ptr, lengths.ptr);
             glCompileShader(shader);
@@ -41,7 +40,7 @@ private:
 
         shader = glCreateShader(GL_FRAGMENT_SHADER);
         {
-            const GLint[1] lengths = [fragmentShaderSource.length];
+            const GLint[1] lengths = [cast(int)fragmentShaderSource.length];
             const(char)*[1] sources = [fragmentShaderSource.ptr];
             glShaderSource(shader, 1, sources.ptr, lengths.ptr);
             glCompileShader(shader);
