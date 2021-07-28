@@ -1,16 +1,13 @@
 module app;
 
-import glfw3.api;
-import bindbc.opengl;
-import imaged;
 import std.stdio;
-
+import std.string;
 import dengine;
 
 int main() {
 	auto dm = new DisplayManager(800, 600, "dengine");
 
-	auto shader = new ShaderProgram();
+	auto shader = new ShaderProgram("shaders/vert.glsl", "shaders/frag.glsl");
 	auto rn = new Renderer();
 
 	Vertex[4] vertices = [
@@ -26,6 +23,7 @@ int main() {
 	];
 
 	auto gb = new GameObject(vertices, indices, "res/crate1.png");
+
 
 	while (!dm.isCloseRequested()) {
 		rn.prepare();

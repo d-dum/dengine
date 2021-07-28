@@ -4,6 +4,8 @@ module dengine.shaders.shader_program;
 import glfw3.api;
 import bindbc.opengl;
 
+import std.stdio;
+
 /// Base class for all shaders
 class ShaderProgram{
 private:
@@ -11,48 +13,32 @@ private:
     uint vertexShaderID;
     uint fragmentShaderID;
 
-    immutable string vertexShaderSource = "#version 330
-layout(location = 0) in vec3 position;
-layout(location = 1) in vec2 texCoords; 
-out vec2 textureCoords;
-void main() {
-	gl_Position = vec4(position, 1.0);
-	textureCoords = texCoords;
-}";
-
-immutable string fragmentShaderSource = "#version 330
-in vec2 textureCoords;
-out vec4 outColor;
-uniform sampler2D textureSampler;
-void main() {
-	outColor = texture(textureSampler, textureCoords);
-}";
-
-    uint createShader(uint type, string shaderPath){
-        uint shader = glCreateShader(GL_VERTEX_SHADER);
+    uint getShader(uint type, string shaderPath){
+        string source;
         {
-            const GLint[1] lengths = [cast(int)vertexShaderSource.length];
-            const(char)*[1] sources = [vertexShaderSource.ptr];
+            File file = File(shaderPath, "r");
+            while(!file.eof()){
+                string line = file.readln();
+                source ~= line;
+            }
+            file.close();
+        }
+
+        uint shader = glCreateShader(type);
+        {
+            const GLint[1] lengths = [cast(int)source.length];
+            const(char)*[1] sources = [source.ptr];
             glShaderSource(shader, 1, sources.ptr, lengths.ptr);
             glCompileShader(shader);
         }
-        vertexShaderID = shader;
 
-        shader = glCreateShader(GL_FRAGMENT_SHADER);
-        {
-            const GLint[1] lengths = [cast(int)fragmentShaderSource.length];
-            const(char)*[1] sources = [fragmentShaderSource.ptr];
-            glShaderSource(shader, 1, sources.ptr, lengths.ptr);
-            glCompileShader(shader);
-        }
-        fragmentShaderID = shader;
         return shader;
     }
 
 public:
-    /// summary:
-    this(){
-        const uint shader = createShader(GL_FRAGMENT_SHADER, " ");
+    this(string vertexPath, string fragmentPath){
+        vertexShaderID = getShader(GL_VERTEX_SHADER, vertexPath);
+        fragmentShaderID = getShader(GL_FRAGMENT_SHADER, fragmentPath);
         const uint program = glCreateProgram();
         glAttachShader(program, vertexShaderID);
         glAttachShader(program, fragmentShaderID);
@@ -64,12 +50,12 @@ public:
 			throw new Exception("Failed to link shader: ");
     }
 
-    /// summary
+    /// Begin shader usage
     void start(){
         glUseProgram(programID);
     }
 
-    /// summary
+    /// Stop shader usage
     void stop(){
         glUseProgram(0);
     }
