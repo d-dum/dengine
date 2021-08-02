@@ -3,6 +3,7 @@ module dengine.shaders.shader_program;
 
 import glfw3.api;
 import bindbc.opengl;
+import gfm.math;
 
 import std.stdio;
 
@@ -58,5 +59,9 @@ public:
     /// Stop shader usage
     void stop(){
         glUseProgram(0);
+    }
+
+    uint getProgramID(){
+        return programID;
     }
 }

@@ -5,6 +5,7 @@
 	"copyright": "Copyright © 2021, Lev Denisov",
 	"dependencies": {
 		"bindbc-opengl": "~>1.0.0",
+		"gfm": "~>8.0.6",
 		"gfm:math": "~>8.0.6",
 		"glfw-d": "~>1.1.0",
 		"imaged": "~>1.0.2",

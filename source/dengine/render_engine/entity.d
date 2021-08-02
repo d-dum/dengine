@@ -51,4 +51,8 @@ public:
     vec3f getRotation(){
         return this.rotation;
     }
+
+    vec3f getScale(){
+        return this.scale;
+    }
 }

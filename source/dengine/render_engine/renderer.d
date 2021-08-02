@@ -2,36 +2,36 @@ module dengine.render_engine.renderer;
 
 import glfw3.api;
 import bindbc.opengl;
+import gfm.math;
 
 import dengine.render_engine.game_object;
+import dengine.render_engine.entity;
+import dengine.shaders.shader_program;
+
+import std.stdio;
 
 /// Handles rendering of all things
 class Renderer {
+private:
+    bool done = false;
+
+    void loadTransformationMatrx(Entity entity, ShaderProgram shader){
+        const mat4f rotX = Matrix!(float, 4, 4).rotateX(entity.getRotation()[0]);
+        const mat4f rotY = Matrix!(float, 4, 4).rotateY(entity.getRotation()[1]);
+        const mat4f rotZ = Matrix!(float, 4, 4).rotateZ(entity.getRotation()[2]);
+        const mat4f rotationMatrix = Matrix!(float, 4, 4).identity() * rotX * rotY * rotZ;
+        const mat4f scaleMatrix = Matrix!(float, 4, 4).scaling(entity.getScale());
+        const mat4f translationMatrix = Matrix!(float, 4, 4).translation(entity.getPosition());
+        const mat4f transformationMatrix = Matrix!(float, 4, 4).identity() * translationMatrix * rotationMatrix * scaleMatrix;
+        const uint transformationMatrixLocation = glGetUniformLocation(shader.getProgramID(), "transformationMatrix");
+        glUniformMatrix4fv(transformationMatrixLocation, 1, GL_FALSE, transformationMatrix.transposed().ptr());
+    }
+
 public:
     /// Prepares window for rendering
     void prepare(){
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glClearColor(0.2, 0.3, 0.3, 1.0);
-    }
-
-    /// Render GameObject
-    void renderGameObject(GameObject gameObject){
-        glBindVertexArray(gameObject.getVaoID());
-        if(gameObject.getHaveTexture()){
-            glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, gameObject.getTextureID());
-            glEnableVertexAttribArray(1);
-            
-        }
-        glEnableVertexAttribArray(0);
-        glDrawElements(GL_TRIANGLES, gameObject.getVertexCount(), GL_UNSIGNED_INT, null);
-        glDisableVertexAttribArray(0);
-        if(gameObject.getHaveTexture()){
-            glDisableVertexAttribArray(1);
-            glBindTexture(GL_TEXTURE_2D, 0);
-        }
-
-        glBindVertexArray(0);
     }
 
     void render(GLuint vao, GLuint textureID, int vertexCount){
@@ -52,5 +52,11 @@ public:
 
     void render(GameObject gameObject){
         render(gameObject.getVaoID, gameObject.getTextureID(), gameObject.getVertexCount());
+    }
+
+    void render(Entity entity, ShaderProgram shader){
+        GameObject gameObject = entity.getGameObject();
+        loadTransformationMatrx(entity, shader);
+        render(gameObject);
     }
 }

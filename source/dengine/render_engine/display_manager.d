@@ -50,11 +50,9 @@ public:
     void update(){
         int w, h;
         glfwGetFramebufferSize(window, &w, &h);
-        if(w != width || h != height){
-            width = w;
-            height = h;
-            glViewport(0, 0, w, h);
-        }
+        width = w;
+        height = h;
+        glViewport(0, 0, w, h);
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
