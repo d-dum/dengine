@@ -32,11 +32,11 @@ public:
         this.position += vec3f(dx, dy, dz);
     }
 
-    void increaseRoataion(vec3f d_rot){
+    void increaseRotaion(vec3f d_rot){
         this.rotation += d_rot;
     }
 
-    void increaseRoataion(float dx, float dy, float dz){
+    void increaseRotaion(float dx, float dy, float dz){
         this.rotation += vec3f(dx, dy, dz);
     }
 

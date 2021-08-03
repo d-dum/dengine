@@ -1,6 +1,8 @@
 {
 	"fileVersion": 1,
 	"versions": {
+		"bettercmath": "0.3.1",
+		"bindbc-glfw": "1.0.0",
 		"bindbc-loader": "1.0.1",
 		"bindbc-opengl": "1.0.0",
 		"bindbc-sdl": "1.0.0",
@@ -12,6 +14,7 @@
 		"derelict-sdl2": "1.2.4",
 		"derelict-util": "2.1.0",
 		"dimage": "0.2.2",
+		"dlsl": "0.1.4",
 		"gfm": "8.0.6",
 		"gfm7": "1.1.2",
 		"glfw-d": "1.1.0",
@@ -23,6 +26,7 @@
 		"stb": "2.0.1",
 		"undead": "1.0.10",
 		"unit-threaded": "0.6.36",
-		"vfile": "0.1.2"
+		"vfile": "0.1.2",
+		"zmath": "0.9.1"
 	}
 }

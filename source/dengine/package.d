@@ -6,4 +6,6 @@ public{
     import dengine.render_engine.renderer;
     import dengine.shaders.shader_program;
     import dengine.render_engine.entity;
+    import dengine.render_engine.camera;
+    import dengine.render_engine.constants;
 }

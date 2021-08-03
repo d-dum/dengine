@@ -7,13 +7,15 @@ import gfm.math;
 import dengine.render_engine.game_object;
 import dengine.render_engine.entity;
 import dengine.shaders.shader_program;
+import dengine.render_engine.display_manager;
 
 import std.stdio;
 
 /// Handles rendering of all things
 class Renderer {
 private:
-    bool done = false;
+    float FOV, nearPlane, farPlane;
+    int width, height;
 
     void loadTransformationMatrx(Entity entity, ShaderProgram shader){
         const mat4f rotX = Matrix!(float, 4, 4).rotateX(entity.getRotation()[0]);
@@ -22,12 +24,41 @@ private:
         const mat4f rotationMatrix = Matrix!(float, 4, 4).identity() * rotX * rotY * rotZ;
         const mat4f scaleMatrix = Matrix!(float, 4, 4).scaling(entity.getScale());
         const mat4f translationMatrix = Matrix!(float, 4, 4).translation(entity.getPosition());
-        const mat4f transformationMatrix = Matrix!(float, 4, 4).identity() * translationMatrix * rotationMatrix * scaleMatrix;
+        const mat4f transformationMatrix = Matrix!(float, 4, 4).identity() * 
+            translationMatrix * rotationMatrix * scaleMatrix;
         const uint transformationMatrixLocation = glGetUniformLocation(shader.getProgramID(), "transformationMatrix");
         glUniformMatrix4fv(transformationMatrixLocation, 1, GL_FALSE, transformationMatrix.transposed().ptr());
     }
 
+    void loadProjectionMatrix(float FOV, float nearPlane, float farPlane, int width, int height, ShaderProgram shader){
+        const mat4f projectionMatrix = Matrix!(float, 4, 4).perspective(radians(FOV), 
+            cast(float)width / cast(float)height, nearPlane, farPlane);
+        shader.start();
+        const uint projectionMatrixLocation = glGetUniformLocation(shader.getProgramID(), "projectionMatrix");
+        glUniformMatrix4fv(projectionMatrixLocation, 1, GL_FALSE, projectionMatrix.transposed().ptr());
+        shader.stop();
+    }
+
 public:
+    this(float FOV, float nearPlane, float farPlane, ShaderProgram shader, DisplayManager display){
+        this.FOV = FOV;
+        this.nearPlane = nearPlane;
+        this.farPlane = farPlane;
+        this.width = display.getWidth();
+        this.height = display.getHeight();
+        loadProjectionMatrix(FOV, nearPlane, farPlane, display.getWidth(), display.getHeight(), shader);
+    }
+
+    /// Updates projection matrix when display size is changed
+    void updateProjectionMatrix(DisplayManager display, ShaderProgram shader){
+        if(display.getWidth() == width || display.getHeight() == height){
+            
+        }
+        else {
+            loadProjectionMatrix(FOV, nearPlane, farPlane, display.getWidth(), display.getHeight(), shader);
+        }
+    }
+
     /// Prepares window for rendering
     void prepare(){
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

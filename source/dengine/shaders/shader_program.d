@@ -51,6 +51,14 @@ public:
 			throw new Exception("Failed to link shader: ");
     }
 
+    ~this(){
+        glDetachShader(programID, vertexShaderID);
+        glDetachShader(programID, fragmentShaderID);
+        glDeleteShader(vertexShaderID);
+        glDeleteShader(fragmentShaderID);
+        glDeleteProgram(programID);
+    }
+
     /// Begin shader usage
     void start(){
         glUseProgram(programID);
