@@ -13,7 +13,14 @@ private:
 
     bool cursorDisabled = true;
 
-    double deltaTime;
+    float deltaTime = 0;
+    float lastFrame = 0;
+
+    void updateDeltaTime(){
+        const float currentFrame = glfwGetTime();
+        deltaTime = currentFrame - lastFrame;
+        lastFrame = currentFrame;
+    }
 
 public:
     /// Constructor for DisplayManager
@@ -78,6 +85,10 @@ public:
         return cursorDisabled;
     }
 
+    float getDeltaTime(){
+        return deltaTime;
+    }
+
     /// Updates display(swaps buffers) and polling window events
     void update(){
         int w, h;
@@ -87,5 +98,6 @@ public:
         glViewport(0, 0, w, h);
         glfwSwapBuffers(window);
         glfwPollEvents();
+        updateDeltaTime();
     }
 }
