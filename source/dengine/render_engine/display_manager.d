@@ -5,16 +5,30 @@ import bindbc.opengl;
 
 import std.stdio;
 
+private struct Point{
+    double x, y;
+}
+
+Point mouseCoords;
+
+private extern(C) @nogc nothrow void mouseCallback(GLFWwindow* window, double xpos, double ypos){
+    mouseCoords.x = xpos;
+    mouseCoords.y = ypos;
+}
+
 /// Manages windows and everything that connected
 class DisplayManager {
 private:
     int width, height;
     GLFWwindow* window;
 
-    bool cursorDisabled = true;
+    double posX, posY;
 
     float deltaTime = 0;
     float lastFrame = 0;
+
+    bool mouseLocked = false;
+    bool cursorHidden = false;
 
     void updateDeltaTime(){
         const float currentFrame = glfwGetTime();
@@ -42,13 +56,22 @@ public:
 
         glfwMakeContextCurrent(window);
         glfwSetInputMode(window, GLFW_STICKY_KEYS, GLFW_TRUE);
+        mouseCoords = Point(width / 2, height / 2);
+        glfwSetCursorPosCallback(window, &mouseCallback);
 
         const GLSupport retVal = loadOpenGL();
         if (retVal == GLSupport.badLibrary || retVal == GLSupport.noLibrary)
             throw new Exception("GLFW not found");
         
-        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
         glViewport(0, 0, w, h);
+    }
+
+    void setMouseLocked(bool state){
+        mouseLocked = state;
+    }
+
+    bool getMouseLocked(){
+        return mouseLocked;
     }
 
     ~this(){
@@ -58,6 +81,19 @@ public:
     /// Returns true if user or/and os requested close of window
     bool isCloseRequested(){
         return cast(bool)glfwWindowShouldClose(window);
+    }
+
+    void hideCursor(bool hidden){
+        cursorHidden = hidden;
+        if(hidden){
+            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+            return;
+        }
+        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+    }
+
+    bool isCursorHidden(){
+        return cursorHidden;
     }
 
     int getWidth(){
@@ -81,12 +117,22 @@ public:
         }
     }
 
-    bool isCursorDisabled(){
-        return cursorDisabled;
-    }
-
     float getDeltaTime(){
         return deltaTime;
+    }
+
+    Point getMousePos(){
+        double xpos, ypos;
+        glfwGetCursorPos(window, &xpos, &ypos);
+        return Point(xpos, ypos);
+    }
+
+    void setCursorPosition(double w, double h){
+        glfwSetCursorPos(window, w, h);
+    }
+
+    void setCursorPosition(){
+        if(cursorHidden) glfwSetCursorPos(window, width / 2, height / 2);
     }
 
     /// Updates display(swaps buffers) and polling window events

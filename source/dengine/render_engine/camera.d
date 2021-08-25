@@ -7,32 +7,78 @@ import gfm.math;
 import bindbc.opengl;
 
 import std.stdio;
+import std.math;
 
-abstract class Camera{
-protected:
+class Camera{
+private:
+    bool changed = true;
+    float pitch, yaw, roll;
     vec3f position;
-    float pitch = 0, 
-        yaw = 0, 
-        roll = 0;
+    mat4f viewMatrix;
+    vec3f cameraFront;
+    vec3f cameraRight;
 
-
-    abstract void move(DisplayManager display);
+    mat4f getViewMatrix(){
+        if(changed){
+            changed = false;
+            const vec3f direction = vec3f(
+                cos(radians(yaw)) * cos(radians(pitch)),
+                sin(radians(pitch)),
+                sin(radians(yaw)) * cos(radians(pitch))
+            );
+            cameraFront = direction.normalized();
+            cameraRight = cross(vec3f(0, 1, 0), direction);
+            const vec3f cameraUp = cross(direction, cameraRight);
+            viewMatrix = Matrix!(float, 4, 4).lookAt(position, position + cameraFront, cameraUp);
+        }
+        return viewMatrix;
+    }
 
 public:
-
-    void increasePosition(float dx, float dy, float dz){
-        position += vec3f(dx, dy, dz);
+    this(vec3f position){
+        this.position = position;
+        pitch = 0;
+        yaw = -90;
+        roll = 0;
     }
-    void increasePosition(vec3f dPos){
-        position += dPos;
+
+    void increasePosition(vec3f dVec){
+        position += dVec;
+        changed = true;
     }
 
-    void use(ShaderProgram shader, DisplayManager display){
-        move(display);
-        const mat4f rotX = Matrix!(float, 4, 4).rotateX(radians(pitch));
-        const mat4f rotY = Matrix!(float, 4, 4).rotateY(radians(yaw));
-        const viewMatrix = Matrix!(float, 4, 4).translation(-position) * rotX * rotY;
+    void increasePositionLocal(vec3f dVec){
+        position += cameraFront * dVec[2];
+        position += cameraRight * dVec[0];
+        changed = true;
+    }
+
+    void increaseYaw(float dYaw){
+        yaw += dYaw;
+        changed = true;
+    }
+
+    void increasePitch(float dPitch){
+        pitch += dPitch;
+        changed = true;
+    }
+
+    float getYaw(){
+        return yaw;
+    }
+
+    void look(float dYaw, float dPitch){
+        yaw += dYaw;
+        changed = true;
+    }
+
+    void increaseRoll(float dRoll){
+        roll += dRoll;
+        changed = true;
+    }
+
+    void use(ShaderProgram shader){
         const uint viewMatrixLocation = glGetUniformLocation(shader.getProgramID(), "viewMatrix");
-        glUniformMatrix4fv(viewMatrixLocation, 1, GL_FALSE, viewMatrix.transposed().ptr());
+        glUniformMatrix4fv(viewMatrixLocation, 1, GL_FALSE, getViewMatrix().transposed.ptr());
     }
 }

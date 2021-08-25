@@ -4,7 +4,6 @@
 	],
 	"copyright": "Copyright © 2021, Lev Denisov",
 	"dependencies": {
-		"bindbc-glfw": "~>1.0.0",
 		"bindbc-opengl": "~>1.0.0",
 		"gfm": "~>8.0.6",
 		"gfm:math": "~>8.0.6",
@@ -16,8 +15,6 @@
 	"license": "MIT",
 	"name": "dengine",
 	"versions": [
-		"GL_33",
-		"SDL_Image",
-		"SDL_TTF"
+		"GL_33"
 	]
 }

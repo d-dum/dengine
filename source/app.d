@@ -8,8 +8,13 @@ import gfm.math;
 
 import fps_camera;
 
+import std.math;
+
 int main() {
 	auto dm = new DisplayManager(1366, 768, "dengine");
+
+	dm.setMouseLocked(true);
+	dm.hideCursor(true);
 
 	auto shader = new ShaderProgram("shaders/vert.glsl", "shaders/frag.glsl");
 	auto rn = new Renderer(45, 0.1, 100, shader, dm);
@@ -30,16 +35,18 @@ int main() {
 	auto gb = new GameObject(vertices, indices, "res/crate1.png");
 	auto en = new Entity(gb, vec3f(0, 0, 0), vec3f(0, 0, 1), 1);
 	auto en1 = new Entity(gb, vec3f(1, 1, 0), vec3f(0, 0, 0), 1);
+	//auto cam = new FpsCamera(vec3f(0, 0, 2));
 	auto cam = new FpsCamera(vec3f(0, 0, 2));
-
+	
 	while (!dm.isCloseRequested()) {
 		rn.prepare();
 		en.increaseRotaion(0, 0, 0.01);
 		en1.increaseRotaion(0, 0, -0.01);
 
 		shader.start();
-			cam.use(shader, dm);
+			//cam.use(shader, dm);
 			//rn.render(gb);
+			cam.move(dm, shader);
 			rn.render(en, shader);
 			rn.render(en1, shader);
 		shader.stop();
