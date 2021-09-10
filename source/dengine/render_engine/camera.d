@@ -53,6 +53,11 @@ public:
         changed = true;
     }
 
+    void setPosition(uint axis, float value){
+        position[axis] = value;
+        changed = true;
+    }
+
     void increaseYaw(float dYaw){
         yaw += dYaw;
         changed = true;

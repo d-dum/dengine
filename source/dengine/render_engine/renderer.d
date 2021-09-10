@@ -8,8 +8,10 @@ import dengine.render_engine.game_object;
 import dengine.render_engine.entity;
 import dengine.shaders.shader_program;
 import dengine.render_engine.display_manager;
+import dengine.render_engine.mesh;
 
 import std.stdio;
+import std.conv;
 
 /// Handles rendering of all things
 class Renderer {
@@ -89,5 +91,23 @@ public:
         GameObject gameObject = entity.getGameObject();
         loadTransformationMatrx(entity, shader);
         render(gameObject);
+    }
+
+    void render(Mesh mesh, ShaderProgram shader){
+        uint diffuseNr = 1;
+        uint specularNr = 1;
+        Texture[] textures = mesh.getTextures();
+        for(uint i = 0; i < textures.length; i++){
+            glActiveTexture(GL_TEXTURE0 + i);
+            string number;
+            string name = textures[i].type;
+            if(name == "texture_diffuse")
+                number = to!string(diffuseNr++);
+            else if(name == "texture_specular")
+                number = to!string(specularNr++);
+            
+            string variableName = "material." ~ name ~ number;
+            glBindTexture(GL_TEXTURE_2D, textures[i].id);
+        }
     }
 }

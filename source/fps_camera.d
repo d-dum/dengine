@@ -23,6 +23,7 @@ private:
             movement[2] = -movementSpeed;
         
         if(movement != vec3f(0, 0, 0)) increasePositionLocal(movement.normalized() * SPEED * display.getDeltaTime());
+        setPosition(1, 0);
     }
 
     void processMouseMovement(DisplayManager display){

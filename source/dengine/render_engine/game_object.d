@@ -15,6 +15,8 @@ struct Vertex {
 	float[3] position;
     /// texture coordinates
     float[2] uv;
+
+    float[3] normals;
 }
 
 import std.stdio;

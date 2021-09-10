@@ -2,6 +2,7 @@ module dengine.render_engine.display_manager;
 
 import glfw3.api;
 import bindbc.opengl;
+import bindbc.assimp;
 
 import std.stdio;
 
@@ -38,7 +39,7 @@ private:
 
 public:
     /// Constructor for DisplayManager
-    this(int w, int h, string name){
+    this(int w, int h, string name, bool assimp = true){
         width = w;
         height = h;
 

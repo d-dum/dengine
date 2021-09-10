@@ -2,6 +2,7 @@
 	"fileVersion": 1,
 	"versions": {
 		"bettercmath": "0.3.1",
+		"bindbc-assimp": "0.0.1",
 		"bindbc-glfw": "1.0.0",
 		"bindbc-loader": "1.0.1",
 		"bindbc-opengl": "1.0.0",
@@ -23,10 +24,13 @@
 		"imageformats": "7.0.2",
 		"intel-intrinsics": "1.6.0",
 		"logger": "0.1.0",
+		"obj-wavefront": "~master",
 		"stb": "2.0.1",
 		"undead": "1.0.10",
 		"unit-threaded": "0.6.36",
+		"utga": "0.0.2",
 		"vfile": "0.1.2",
+		"wavefront-obj": "0.0.2",
 		"zmath": "0.9.1"
 	}
 }

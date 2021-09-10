@@ -8,4 +8,5 @@ public{
     import dengine.render_engine.entity;
     import dengine.render_engine.camera;
     import dengine.render_engine.constants;
+    import dengine.helpers.model_loader;
 }
