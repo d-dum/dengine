@@ -2,7 +2,6 @@ module dengine.render_engine.display_manager;
 
 import glfw3.api;
 import bindbc.opengl;
-import bindbc.assimp;
 
 import std.stdio;
 

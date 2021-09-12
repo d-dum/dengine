@@ -17,6 +17,7 @@ private:
     mat4f viewMatrix;
     vec3f cameraFront;
     vec3f cameraRight;
+    vec3f cameraUp;
 
     mat4f getViewMatrix(){
         if(changed){
@@ -28,7 +29,7 @@ private:
             );
             cameraFront = direction.normalized();
             cameraRight = cross(vec3f(0, 1, 0), direction);
-            const vec3f cameraUp = cross(direction, cameraRight);
+            cameraUp = cross(direction, cameraRight);
             viewMatrix = Matrix!(float, 4, 4).lookAt(position, position + cameraFront, cameraUp);
         }
         return viewMatrix;
@@ -44,6 +45,11 @@ public:
 
     void increasePosition(vec3f dVec){
         position += dVec;
+        changed = true;
+    }
+
+    void increaseYPos(float dPos){
+        position[1] += dPos;
         changed = true;
     }
 

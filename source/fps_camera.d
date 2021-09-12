@@ -9,6 +9,8 @@ private:
     const float SPEED = 4;
     const float MOUSE_SENSITIVITY = 0.1;
 
+    bool fly = false;
+
     void processKeyboardMovement(DisplayManager display){
         vec3f movement = vec3f(0, 0, 0);
         const float movementSpeed = 1;
@@ -22,8 +24,13 @@ private:
         if(display.getKey(KEY_S))
             movement[2] = -movementSpeed;
         
+        if(display.getKey(KEY_J))
+            fly = true;
+        if(display.getKey(KEY_K))
+            fly = false;
+        
         if(movement != vec3f(0, 0, 0)) increasePositionLocal(movement.normalized() * SPEED * display.getDeltaTime());
-        setPosition(1, 0);
+        if(!fly) setPosition(1, 0);
     }
 
     void processMouseMovement(DisplayManager display){

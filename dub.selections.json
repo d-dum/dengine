@@ -24,7 +24,7 @@
 		"imageformats": "7.0.2",
 		"intel-intrinsics": "1.6.0",
 		"logger": "0.1.0",
-		"obj-wavefront": "~master",
+		"obj-wavefront": "0.0.4",
 		"stb": "2.0.1",
 		"undead": "1.0.10",
 		"unit-threaded": "0.6.36",

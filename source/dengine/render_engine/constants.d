@@ -7,3 +7,4 @@ const int KEY_A = GLFW_KEY_A;
 const int KEY_S = GLFW_KEY_S;
 const int KEY_D = GLFW_KEY_D;
 const int KEY_K = GLFW_KEY_K;
+const int KEY_J = GLFW_KEY_J;
