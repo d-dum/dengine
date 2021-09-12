@@ -42,8 +42,8 @@ int main() {
 	//auto cam = new FpsCamera(vec3f(0, 0, 2));
 	auto cam = new FpsCamera(vec3f(0, 0, 2));
 	auto loader = new ModelLoader();
-	auto stall = loader.loadOBJModel("res/quad.obj", "res/crate1.png");
-	auto stallEn = new Entity(stall, vec3f(0, 0, 0), vec3f(0, 0, 0), 1);
+	auto stall = loader.loadOBJModel("res/stall.obj", "res/crate1.png");
+	auto stallEn = new Entity(stall, vec3f(0, -0.5, 0), vec3f(0, 0, 0), 1);
 	
 	while (!dm.isCloseRequested()) {
 		rn.prepare();

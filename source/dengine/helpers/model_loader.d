@@ -34,7 +34,6 @@ private:
             uvRaw ~= UV(vec.raw);
         }
         //auto faces = model.faces;
-        
 
         return uvRaw;
     }
@@ -57,9 +56,15 @@ private:
         int uvCounter = 0;
         auto faces = getRawFaces(model);
         for(int i = 0; i < model.nverts; i++){
-            vertices ~= Vertex(model.vert(i).raw, uv[faces[i].t].uv);
+            float[2] u;
+            foreach (face; faces){
+                if(face.v == i){
+                    u = uv[face.t].uv;
+                    break;
+                }
+            }
+            vertices ~= Vertex(model.vert(i).raw, u);
         }
-        writeln(vertices);
 
         return vertices;
     }
